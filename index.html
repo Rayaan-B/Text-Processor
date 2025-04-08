@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Processor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-gradient-from: #f5f7fa;
+      --bg-gradient-to: #c3cfe2;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --card-bg: #ffffff;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --input-border: #d1d5db;
+      --input-bg: #ffffff;
+      --input-focus: #6366f1;
+      --button-primary: #6366f1;
+      --button-primary-hover: #4f46e5;
+      --button-text: #ffffff;
+      --stats-bg-1: #eef2ff;
+      --stats-text-1: #6366f1;
+      --stats-bg-2: #ecfdf5;
+      --stats-text-2: #10b981;
+      --stats-bg-3: #fef2f2;
+      --stats-text-3: #ef4444;
+      --stats-bg-4: #f5f3ff;
+      --stats-text-4: #8b5cf6;
+    }
+
+    .dark {
+      --bg-gradient-from: #1f2937;
+      --bg-gradient-to: #111827;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --card-bg: #374151;
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+      --input-border: #4b5563;
+      --input-bg: #1f2937;
+      --input-focus: #818cf8;
+      --button-primary: #6366f1;
+      --button-primary-hover: #4f46e5;
+      --button-text: #ffffff;
+      --stats-bg-1: #312e81;
+      --stats-text-1: #a5b4fc;
+      --stats-bg-2: #065f46;
+      --stats-text-2: #6ee7b7;
+      --stats-bg-3: #7f1d1d;
+      --stats-text-3: #fca5a5;
+      --stats-bg-4: #4c1d95;
+      --stats-text-4: #c4b5fd;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-to) 100%);
+    }
+
+    .text-area {
+      min-height: 200px;
+      transition: all 0.3s ease;
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      border-color: var(--input-border);
+    }
+
+    .text-area:focus {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+      border-color: var(--input-focus);
+    }
+
+    .badge {
+      transition: all 0.2s ease;
+    }
+
+    .badge:hover {
+      transform: translateY(-2px);
+    }
+
+    .slide-in {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Toggle Switch Styles */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--button-primary);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+
+<body class="gradient-bg min-h-screen p-4 md:p-8 transition-colors duration-300">
+  <div class="max-w-4xl mx-auto">
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-[var(--text-primary)] mb-2">Text Processor</h1>
+      <p class="text-[var(--text-secondary)]">Clean and modify your text with ease</p>
+      <div class="flex items-center justify-center mt-4">
+        <span class="mr-2 text-[var(--text-secondary)]"><i class="fas fa-sun"></i></span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="dark-mode-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="ml-2 text-[var(--text-secondary)]"><i class="fas fa-moon"></i></span>
+      </div>
+    </header>
+
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden mb-8 transition-colors duration-300">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-[var(--text-primary)]">Input Context</h2>
+          <button id="clear-all" class="text-sm text-red-500 hover:text-red-700 flex items-center">
+                        <i class="fas fa-trash-alt mr-1"></i> Clear All
+                    </button>
+        </div>
+        <textarea id="context-input" class="text-area w-full p-4 border rounded-lg focus:outline-none" placeholder="Paste your text here..."></textarea>
+      </div>
+    </div>
+
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden mb-8 transition-colors duration-300">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Words and Symbols to Remove</h2>
+        <div class="flex flex-wrap gap-2 mb-4" id="words-container">
+          <!-- Words will appear here -->
+        </div>
+        <div class="flex">
+          <input type="text" id="word-input" class="flex-grow p-3 border rounded-l-lg focus:outline-none focus:border-[var(--input-focus)] bg-[var(--input-bg)] text-[var(--text-primary)] border-[var(--input-border)]" placeholder="Enter word to remove...">
+          <button id="add-word" class="bg-[var(--button-primary)] hover:bg-[var(--button-primary-hover)] text-[var(--button-text)] px-4 rounded-r-lg transition-colors">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+        </div>
+        <p class="text-sm text-[var(--text-secondary)] mt-2">Separate multiple words with commas</p>
+      </div>
+    </div>
+
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden mb-8 transition-colors duration-300">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-[var(--text-primary)]">Processed Text</h2>
+          <button id="copy-result" class="text-sm text-[var(--button-primary)] hover:text-[var(--button-primary-hover)] flex items-center">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+        </div>
+        <div id="processed-output"
+          class="text-area w-full p-4 border rounded-lg min-h-[200px]">
+          <p class="text-[var(--text-secondary)] italic">Your processed text will appear here...</p>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button id="process-btn" class="bg-[var(--button-primary)] hover:bg-[var(--button-primary-hover)] text-[var(--button-text)] px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                        <i class="fas fa-magic mr-2"></i> Process Text
+                    </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Statistics</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-[var(--stats-bg-1)] p-4 rounded-lg text-center transition-colors duration-300">
+            <p class="text-sm text-[var(--stats-text-1)] font-medium">Original Words</p>
+            <p id="original-count" class="text-2xl font-bold text-[var(--stats-text-1)]">0</p>
+          </div>
+          <div class="bg-[var(--stats-bg-2)] p-4 rounded-lg text-center transition-colors duration-300">
+            <p class="text-sm text-[var(--stats-text-2)] font-medium">Processed Words</p>
+            <p id="processed-count" class="text-2xl font-bold text-[var(--stats-text-2)]">0</p>
+          </div>
+          <div class="bg-[var(--stats-bg-3)] p-4 rounded-lg text-center transition-colors duration-300">
+            <p class="text-sm text-[var(--stats-text-3)] font-medium">Words Removed</p>
+            <p id="removed-count" class="text-2xl font-bold text-[var(--stats-text-3)]">0</p>
+          </div>
+          <div class="bg-[var(--stats-bg-4)] p-4 rounded-lg text-center transition-colors duration-300">
+            <p class="text-sm text-[var(--stats-text-4)] font-medium">Asterisk Words</p>
+            <p id="asterisk-count" class="text-2xl font-bold text-[var(--stats-text-4)]">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+            // Dark mode toggle functionality
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Set initial theme based on saved preference or system preference
+            if (savedTheme === 'dark' || (!savedTheme && prefersDarkMode)) {
+                htmlElement.classList.add('dark');
+                darkModeToggle.checked = true;
+            }
+            
+            // Toggle dark mode when switch is clicked
+            darkModeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    htmlElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    htmlElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            // DOM elements
+            const contextInput = document.getElementById('context-input');
+            const wordInput = document.getElementById('word-input');
+            const addWordBtn = document.getElementById('add-word');
+            const processBtn = document.getElementById('process-btn');
+            const processedOutput = document.getElementById('processed-output');
+            const wordsContainer = document.getElementById('words-container');
+            const clearAllBtn = document.getElementById('clear-all');
+            const copyResultBtn = document.getElementById('copy-result');
+            
+            // Stats elements
+            const originalCount = document.getElementById('original-count');
+            const processedCount = document.getElementById('processed-count');
+            const removedCount = document.getElementById('removed-count');
+            const asteriskCount = document.getElementById('asterisk-count');
+            
+            // Words to remove array
+            let wordsToRemove = [];
+            
+            // Modified addWords function to handle comma-separated input
+            function addWords() {
+                const input = wordInput.value.trim();
+                if (!input) return;
+                
+                // Split by commas and trim each word
+                const newWords = input.split(',').map(word => word.trim()).filter(word => word);
+                
+                // Add to wordsToRemove if not already there
+                newWords.forEach(word => {
+                    if (!wordsToRemove.includes(word.toLowerCase())) {
+                        wordsToRemove.push(word.toLowerCase());
+                        createWordBadge(word);
+                    }
+                });
+                
+                wordInput.value = '';
+                wordInput.focus();
+            }
+            
+            // Add event listener for the 'Add' button
+            addWordBtn.addEventListener('click', addWords);
+            
+            // Modified processText function for asterisk reconstruction and word removal
+            function processText() {
+                const text = contextInput.value;
+                if (!text.trim()) {
+                    processedOutput.innerHTML = '<p class="text-red-400 italic">Please enter some text to process.</p>';
+                    return;
+                }
+                
+                // Split text into paragraphs and process each one separately
+                const paragraphs = text.split('\n');
+                let processedParagraphs = [];
+                let originalWordCount = 0;
+                let asteriskWordsFound = 0;
+                
+                paragraphs.forEach(paragraph => {
+                    if (!paragraph.trim()) {
+                        processedParagraphs.push('');
+                        return;
+                    }
+                    
+                    // Count original words for this paragraph
+                    const originalWords = paragraph.split(/\s+/).filter(word => word);
+                    originalWordCount += originalWords.length;
+                    
+                    // Process the paragraph
+                    let processedText = paragraph;
+                    
+                    // Handle asterisk words - Replace asterisks with appropriate letters in any position
+                    processedText = processedText.replace(/\b\w*\*\w*\b/g, function(match) {
+                        // Count each word with asterisks
+                        asteriskWordsFound++;
+                        // Replace asterisks with their original letters
+                        const replacements = {
+                            'f*cking': 'fucking',
+                            'f*ck': 'fuck',
+                            'b*tch': 'bitch',
+                            'b*tching': 'bitching',
+                        's*ck': 'suck',
+                        's*cking':'sucking',
+                        's*cked':'sucked',
+                        'f*cked': 'fucked',
+                        'f*cks': 'fucks',
+                        'sh*t': 'shit',
+                        'sh*ts':'shits',
+                        'sh*tty':'shitty',
+                        'd*ck': 'dick',
+                        'a**hole': 'asshole',
+                        'b*stard': 'bastard',
+                        'b*stards': 'bastards',
+                        'b*llock': 'bollock',
+                        'b*llocks': 'bollocks',
+                        'p*ssy': 'pussy',
+                        'p*ssies': 'pussies',
+                        'p*ssy\'s': 'pussy\'s',
+                        'c*nt': 'cunt',
+                        'c*nts': 'cunts',
+                        'c*nter': 'cunter',
+                        'c*nters': 'cunters',
+                        'c*nt\'s': 'cunt\'s',
+
+
+                    };
+                    return replacements[match.toLowerCase()] || match.replace(/\*/g, '');
+                });
+                
+                // 2. Remove specified words and symbols (case insensitive)
+                    if (wordsToRemove.length > 0) {
+                        // Escape special regex characters in words to remove
+                        const escapedWords = wordsToRemove.map(word => 
+                            word.replace(/[\\^$.*+?()[{}|\\]/g, '\\$&')
+                        );
+                        const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b|([${escapedWords.join('')}])`, 'gi');
+                        processedText = processedText.replace(regex, '');
+                    }
+                    
+                    // 3. Clean up extra spaces within paragraph
+                    processedText = processedText.replace(/\s+/g, ' ').trim();
+                    
+                    processedParagraphs.push(processedText);
+                });
+                
+                // Count processed words
+                let processedWordCount = 0;
+                processedParagraphs.forEach(p => {
+                    if (p.trim()) {
+                        processedWordCount += p.split(/\s+/).filter(word => word).length;
+                    }
+                });
+                
+                // Update stats
+                originalCount.textContent = originalWordCount;
+                processedCount.textContent = processedWordCount;
+                removedCount.textContent = originalWordCount - processedWordCount;
+                asteriskCount.textContent = asteriskWordsFound;
+                
+                // Display result with preserved paragraphs
+                const finalText = processedParagraphs.join('\n');
+                if (finalText.trim()) {
+                    processedOutput.innerHTML = finalText.replace(/\n/g, '<br>');
+                } else {
+                    processedOutput.innerHTML = '<p class="text-gray-400 italic">All content was removed.</p>';
+                }
+            }
+            
+            // Create a badge for a word
+            function createWordBadge(word) {
+                const badge = document.createElement('div');
+                badge.className = 'badge bg-[var(--input-bg)] text-[var(--text-primary)] border border-[var(--input-border)] px-3 py-1 rounded-full flex items-center slide-in transition-colors duration-300';
+                badge.innerHTML = `
+                    ${word}
+                    <button class="ml-2 text-[var(--text-secondary)] hover:text-red-500" data-word="${word.toLowerCase()}">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                
+                wordsContainer.appendChild(badge);
+                
+                // Add event to remove button
+                badge.querySelector('button').addEventListener('click', function() {
+                    const wordToRemove = this.getAttribute('data-word');
+                    wordsToRemove = wordsToRemove.filter(w => w !== wordToRemove);
+                    badge.remove();
+                });
+            }
+            
+            // Clear all button
+            clearAllBtn.addEventListener('click', function() {
+                contextInput.value = '';
+                wordsToRemove = [];
+                wordsContainer.innerHTML = '';
+                processedOutput.innerHTML = '<p class="text-gray-400 italic">Your processed text will appear here...</p>';
+                updateStats(0, 0, 0, 0);
+            });
+            
+            // Copy result button
+            copyResultBtn.addEventListener('click', function() {
+                const text = processedOutput.innerText;
+                if (!text || text.includes('Your processed text')) return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+            
+            // Process text button
+            processBtn.addEventListener('click', processText);
+            
+            // Initialize stats
+            function updateStats(original, processed, removed, asterisk) {
+                originalCount.textContent = original;
+                processedCount.textContent = processed;
+                removedCount.textContent = removed;
+                asteriskCount.textContent = asterisk;
+            }
+        });
+  </script>
+</body>
+
+</html>
