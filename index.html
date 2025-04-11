@@ -10,7 +10,8 @@
   <style>
     :root {
       --bg-gradient-from: #f5f7fa;
-      --bg-gradient-to: #c3cfe2;
+      --bg-gradient-middle: #c8d6e5;
+      --bg-gradient-to: #92a8ca;
       --text-primary: #1f2937;
       --text-secondary: #4b5563;
       --card-bg: #ffffff;
@@ -29,10 +30,13 @@
       --stats-text-3: #ef4444;
       --stats-bg-4: #f5f3ff;
       --stats-text-4: #8b5cf6;
+      --stats-bg-5: #fffbee;
+      --stats-text-5: #664d03;
     }
 
     .dark {
       --bg-gradient-from: #1f2937;
+      --bg-gradient-middle: #374151;
       --bg-gradient-to: #111827;
       --text-primary: #f9fafb;
       --text-secondary: #d1d5db;
@@ -52,10 +56,12 @@
       --stats-text-3: #fca5a5;
       --stats-bg-4: #4c1d95;
       --stats-text-4: #c4b5fd;
+      --stats-bg-5: #664d03;
+      --stats-text-5: #fff5d6;
     }
 
     .gradient-bg {
-      background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-to) 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-middle) 50%, var(--bg-gradient-to) 100%);
     }
 
     .text-area {
@@ -194,9 +200,13 @@
                         <i class="fas fa-copy mr-1"></i> Copy
                     </button>
         </div>
-        <div id="processed-output"
-          class="text-area w-full p-4 border rounded-lg min-h-[200px]">
-          <p class="text-[var(--text-secondary)] italic">Your processed text will appear here...</p>
+        <div class="relative">
+          <div id="processed-output" class="text-area w-full p-4 border rounded-lg min-h-[200px] max-h-[300px] overflow-y-auto transition-all duration-300">
+            <p class="text-[var(--text-secondary)] italic">Your processed text will appear here...</p>
+          </div>
+          <button id="expand-btn" class="absolute bottom-3 right-3 bg-[var(--button-primary)] text-[var(--button-text)] p-1 rounded-md opacity-70 hover:opacity-100 transition-opacity hidden">
+            <i class="fas fa-expand-alt"></i>
+          </button>
         </div>
         <div class="flex justify-end mt-4">
           <button id="process-btn" class="bg-[var(--button-primary)] hover:bg-[var(--button-primary-hover)] text-[var(--button-text)] px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
@@ -209,7 +219,7 @@
     <div class="bg-[var(--card-bg)] rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
       <div class="p-6">
         <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Statistics</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div class="bg-[var(--stats-bg-1)] p-4 rounded-lg text-center transition-colors duration-300">
             <p class="text-sm text-[var(--stats-text-1)] font-medium">Original Words</p>
             <p id="original-count" class="text-2xl font-bold text-[var(--stats-text-1)]">0</p>
@@ -225,6 +235,12 @@
           <div class="bg-[var(--stats-bg-4)] p-4 rounded-lg text-center transition-colors duration-300">
             <p class="text-sm text-[var(--stats-text-4)] font-medium">Asterisk Words</p>
             <p id="asterisk-count" class="text-2xl font-bold text-[var(--stats-text-4)]">0</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="bg-[var(--stats-bg-5)] p-4 rounded-lg text-center transition-colors duration-300">
+            <p class="text-sm text-[var(--stats-text-5)] font-medium">Symbols Removed</p>
+            <p id="symbols-count" class="text-2xl font-bold text-[var(--stats-text-5)]">0</p>
           </div>
         </div>
       </div>
@@ -272,11 +288,12 @@
             const processedCount = document.getElementById('processed-count');
             const removedCount = document.getElementById('removed-count');
             const asteriskCount = document.getElementById('asterisk-count');
+            const symbolsCount = document.getElementById('symbols-count');
             
             // Words to remove array
             let wordsToRemove = [];
             
-            // Modified addWords function to handle comma-separated input
+            // Modified addWords function to handle comma-separated input and normalize text
             function addWords() {
                 const input = wordInput.value.trim();
                 if (!input) return;
@@ -286,14 +303,52 @@
                 
                 // Add to wordsToRemove if not already there
                 newWords.forEach(word => {
-                    if (!wordsToRemove.includes(word.toLowerCase())) {
-                        wordsToRemove.push(word.toLowerCase());
+                    // Normalize the word by removing any formatting
+                    const normalizedWord = normalizeText(word).toLowerCase();
+                    if (!wordsToRemove.includes(normalizedWord)) {
+                        wordsToRemove.push(normalizedWord);
                         createWordBadge(word);
                     }
                 });
                 
                 wordInput.value = '';
                 wordInput.focus();
+            }
+            
+            // Function to normalize text by removing formatting and handling Unicode characters
+            function normalizeText(text) {
+                // Create a temporary div element to strip formatting
+                const tempDiv = document.createElement('div');
+                tempDiv.textContent = text;
+                
+                // Get the text content
+                let normalizedText = tempDiv.textContent;
+                
+                // Custom mapping for special Unicode characters, particularly small capital letters
+                // This handles cases like ʟɪɢʜᴛɴᴏᴠᴇʟᴡᴏʀʟᴅ.ᴄᴏᴍ
+                const unicodeMap = {
+                    // Small capital letters to regular letters
+                    'ᴀ': 'a', 'ʙ': 'b', 'ᴄ': 'c', 'ᴅ': 'd', 'ᴇ': 'e', 'ꜰ': 'f', 'ɢ': 'g', 'ʜ': 'h', 'ɪ': 'i', 
+                    'ᴊ': 'j', 'ᴋ': 'k', 'ʟ': 'l', 'ᴍ': 'm', 'ɴ': 'n', 'ᴏ': 'o', 'ᴘ': 'p', 'ǫ': 'q', 'ʀ': 'r', 
+                    'ꜱ': 's', 'ᴛ': 't', 'ᴜ': 'u', 'ᴠ': 'v', 'ᴡ': 'w', 'x': 'x', 'ʏ': 'y', 'ᴢ': 'z',
+                    // Other common special characters
+                    'ᴅ': 'd', 'ᴇ': 'e', 'ɪ': 'i', 'ᴍ': 'm', 'ɴ': 'n', 'ᴏ': 'o', 'ᴛ': 't', 'ʟ': 'l',
+                    'ɢ': 'g', 'ʜ': 'h', 'ᴡ': 'w', 'ʀ': 'r', 'ᴄ': 'c'
+                };
+                
+                // Apply custom character mapping
+                for (const [unicode, ascii] of Object.entries(unicodeMap)) {
+                    normalizedText = normalizedText.replace(new RegExp(unicode, 'g'), ascii);
+                }
+                
+                // Apply Unicode normalization (NFKD: Compatibility Decomposition)
+                // This converts special Unicode characters to their standard equivalents
+                normalizedText = normalizedText.normalize('NFKD');
+                
+                // Replace any remaining non-ASCII characters with their closest ASCII equivalents
+                normalizedText = normalizedText.replace(/[\u0300-\u036f]/g, ''); // Remove combining diacritical marks
+                
+                return normalizedText;
             }
             
             // Add event listener for the 'Add' button
@@ -312,6 +367,7 @@
                 let processedParagraphs = [];
                 let originalWordCount = 0;
                 let asteriskWordsFound = 0;
+                let symbolsRemoved = 0;
                 
                 paragraphs.forEach(paragraph => {
                     if (!paragraph.trim()) {
@@ -366,12 +422,51 @@
                 
                 // 2. Remove specified words and symbols (case insensitive)
                     if (wordsToRemove.length > 0) {
-                        // Escape special regex characters in words to remove
-                        const escapedWords = wordsToRemove.map(word => 
-                            word.replace(/[\\^$.*+?()[{}|\\]/g, '\\$&')
-                        );
-                        const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b|([${escapedWords.join('')}])`, 'gi');
-                        processedText = processedText.replace(regex, '');
+                        // Process each word to remove
+                        for (const wordToRemove of wordsToRemove) {
+                            // Normalize both the text and the word to remove
+                            const normalizedWordToRemove = normalizeText(wordToRemove).toLowerCase();
+                            
+                            // Create a new normalized version of the current processed text for each word
+                            let normalizedProcessedText = normalizeText(processedText).toLowerCase();
+                            
+                            // Check if it's a word (contains only alphanumeric characters)
+                            if (/^\w+$/.test(normalizedWordToRemove)) {
+                                // For words, use word boundaries
+                                const wordRegex = new RegExp(`\\b${normalizedWordToRemove.replace(/[\\^$.*+?()[{}|\\]/g, '\\$&')}\\b`, 'gi');
+                                
+                                // Find all occurrences in the normalized text
+                                let match;
+                                let positions = [];
+                                while ((match = wordRegex.exec(normalizedProcessedText)) !== null) {
+                                    positions.push({ start: match.index, length: match[0].length });
+                                }
+                                
+                                // Remove words from the original text (starting from the end to maintain indices)
+                                for (let i = positions.length - 1; i >= 0; i--) {
+                                    const { start, length } = positions[i];
+                                    processedText = processedText.substring(0, start) + processedText.substring(start + length);
+                                }
+                            } else {
+                                // For symbols and special characters, don't use word boundaries
+                                const symbolRegex = new RegExp(normalizedWordToRemove.replace(/[\\^$.*+?()[{}|\\]/g, '\\$&'), 'gi');
+                                
+                                // Find all occurrences in the normalized text
+                                let match;
+                                let positions = [];
+                                while ((match = symbolRegex.exec(normalizedProcessedText)) !== null) {
+                                    positions.push({ start: match.index, length: match[0].length });
+                                }
+                                
+                                // Remove symbols from the original text (starting from the end to maintain indices)
+                                for (let i = positions.length - 1; i >= 0; i--) {
+                                    const { start, length } = positions[i];
+                                    processedText = processedText.substring(0, start) + processedText.substring(start + length);
+                                    // Count each symbol removed
+                                    symbolsRemoved++;
+                                }
+                            }
+                        }
                     }
                     
                     // 3. Clean up extra spaces within paragraph
@@ -393,14 +488,25 @@
                 processedCount.textContent = processedWordCount;
                 removedCount.textContent = originalWordCount - processedWordCount;
                 asteriskCount.textContent = asteriskWordsFound;
+                symbolsCount.textContent = symbolsRemoved;
                 
                 // Display result with preserved paragraphs
                 const finalText = processedParagraphs.join('\n');
                 if (finalText.trim()) {
-                    processedOutput.innerHTML = finalText.replace(/\n/g, '<br>');
+                    // Escape HTML special characters to prevent them from being interpreted as HTML tags
+                    const escapedText = finalText
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                    processedOutput.innerHTML = escapedText.replace(/\n/g, '<br>');
                 } else {
                     processedOutput.innerHTML = '<p class="text-gray-400 italic">All content was removed.</p>';
                 }
+                
+                // Update expand button visibility
+                updateExpandButtonVisibility();
             }
             
             // Create a badge for a word
@@ -431,6 +537,7 @@
                 wordsContainer.innerHTML = '';
                 processedOutput.innerHTML = '<p class="text-gray-400 italic">Your processed text will appear here...</p>';
                 updateStats(0, 0, 0, 0);
+                updateExpandButtonVisibility();
             });
             
             // Copy result button
@@ -450,12 +557,41 @@
             // Process text button
             processBtn.addEventListener('click', processText);
             
+            // Expand/collapse functionality for processed text
+            const expandBtn = document.getElementById('expand-btn');
+            let isExpanded = false;
+            
+            // Show expand button only when there's content
+            function updateExpandButtonVisibility() {
+                const content = processedOutput.innerText;
+                if (content && !content.includes('Your processed text') && !content.includes('Please enter some text')) {
+                    expandBtn.classList.remove('hidden');
+                } else {
+                    expandBtn.classList.add('hidden');
+                }
+            }
+            
+            // Toggle expand/collapse
+            expandBtn.addEventListener('click', function() {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    processedOutput.classList.remove('max-h-[300px]');
+                    processedOutput.classList.add('max-h-[800px]');
+                    this.innerHTML = '<i class="fas fa-compress-alt"></i>';
+                } else {
+                    processedOutput.classList.add('max-h-[300px]');
+                    processedOutput.classList.remove('max-h-[800px]');
+                    this.innerHTML = '<i class="fas fa-expand-alt"></i>';
+                }
+            });
+            
             // Initialize stats
-            function updateStats(original, processed, removed, asterisk) {
+            function updateStats(original, processed, removed, asterisk, symbols = 0) {
                 originalCount.textContent = original;
                 processedCount.textContent = processed;
                 removedCount.textContent = removed;
                 asteriskCount.textContent = asterisk;
+                symbolsCount.textContent = symbols;
             }
         });
   </script>
