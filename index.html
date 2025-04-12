@@ -84,6 +84,43 @@
     .badge:hover {
       transform: translateY(-2px);
     }
+    
+    /* Clickable stats cards */
+    .stats-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
 
     .slide-in {
       animation: slideIn 0.3s ease-out forwards;
@@ -220,27 +257,40 @@
       <div class="p-6">
         <h2 class="text-xl font-semibold text-[var(--text-primary)] mb-4">Statistics</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <div class="bg-[var(--stats-bg-1)] p-4 rounded-lg text-center transition-colors duration-300">
+          <div class="bg-[var(--stats-bg-1)] p-4 rounded-lg text-center transition-colors duration-300 stats-card">
             <p class="text-sm text-[var(--stats-text-1)] font-medium">Original Words</p>
             <p id="original-count" class="text-2xl font-bold text-[var(--stats-text-1)]">0</p>
           </div>
-          <div class="bg-[var(--stats-bg-2)] p-4 rounded-lg text-center transition-colors duration-300">
+          <div class="bg-[var(--stats-bg-2)] p-4 rounded-lg text-center transition-colors duration-300 stats-card">
             <p class="text-sm text-[var(--stats-text-2)] font-medium">Processed Words</p>
             <p id="processed-count" class="text-2xl font-bold text-[var(--stats-text-2)]">0</p>
           </div>
-          <div class="bg-[var(--stats-bg-3)] p-4 rounded-lg text-center transition-colors duration-300">
-            <p class="text-sm text-[var(--stats-text-3)] font-medium">Words Removed</p>
+          <div id="removed-words-card" class="bg-[var(--stats-bg-3)] p-4 rounded-lg text-center transition-colors duration-300 stats-card">
+            <p class="text-sm text-[var(--stats-text-3)] font-medium">Words Removed <i class="fas fa-eye ml-1 text-xs"></i></p>
             <p id="removed-count" class="text-2xl font-bold text-[var(--stats-text-3)]">0</p>
           </div>
-          <div class="bg-[var(--stats-bg-4)] p-4 rounded-lg text-center transition-colors duration-300">
-            <p class="text-sm text-[var(--stats-text-4)] font-medium">Asterisk Words</p>
+          <div id="asterisk-words-card" class="bg-[var(--stats-bg-4)] p-4 rounded-lg text-center transition-colors duration-300 stats-card">
+            <p class="text-sm text-[var(--stats-text-4)] font-medium">Asterisk Words <i class="fas fa-eye ml-1 text-xs"></i></p>
             <p id="asterisk-count" class="text-2xl font-bold text-[var(--stats-text-4)]">0</p>
           </div>
         </div>
         <div class="grid grid-cols-1 gap-4">
-          <div class="bg-[var(--stats-bg-5)] p-4 rounded-lg text-center transition-colors duration-300">
-            <p class="text-sm text-[var(--stats-text-5)] font-medium">Symbols Removed</p>
+          <div id="symbols-removed-card" class="bg-[var(--stats-bg-5)] p-4 rounded-lg text-center transition-colors duration-300 stats-card">
+            <p class="text-sm text-[var(--stats-text-5)] font-medium">Symbols Removed <i class="fas fa-eye ml-1 text-xs"></i></p>
             <p id="symbols-count" class="text-2xl font-bold text-[var(--stats-text-5)]">0</p>
+          </div>
+        </div>
+        
+        <!-- Modal for displaying removed content -->
+        <div id="content-modal" class="modal">
+          <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+              <h3 id="modal-title" class="text-xl font-semibold text-[var(--text-primary)]"></h3>
+              <button id="close-modal" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div id="modal-content" class="max-h-[400px] overflow-y-auto"></div>
           </div>
         </div>
       </div>
@@ -292,6 +342,11 @@
             
             // Words to remove array
             let wordsToRemove = [];
+            
+            // Objects to track removed content and their counts
+            let removedWordsMap = {};
+            let asteriskWordsMap = {};
+            let symbolsRemovedMap = {};
             
             // Modified addWords function to handle comma-separated input and normalize text
             function addWords() {
@@ -362,6 +417,11 @@
                     return;
                 }
                 
+                // Reset tracking maps before each processing
+                removedWordsMap = {};
+                asteriskWordsMap = {};
+                symbolsRemovedMap = {};
+                
                 // Split text into paragraphs and process each one separately
                 const paragraphs = text.split('\n');
                 let processedParagraphs = [];
@@ -386,34 +446,55 @@
                     processedText = processedText.replace(/\b\w*\*\w*\b/g, function(match) {
                         // Count each word with asterisks
                         asteriskWordsFound++;
+                        // Add to asterisk words map or increment count if already there
+                        if (asteriskWordsMap[match]) {
+                            asteriskWordsMap[match]++;
+                        } else {
+                            asteriskWordsMap[match] = 1;
+                        }
                         // Replace asterisks with their original letters
                         const replacements = {
                             'f*cking': 'fucking',
                             'f*ck': 'fuck',
+                            'f*cked': 'fucked',
+                            'f*cks': 'fucks',
+                            'motherf*cking': 'motherfucking',
+                            'motherf*cked': 'motherfucked',
+                            'motherf*cker':'motherfucker',
+                            'motherf*ckers': 'motherfuckers',
+                            'bullsh*t': 'bullshit',
+                            'bullsh*ts': 'bullshits',
+                            'bullsh*ting': 'bullsh*ting',
                             'b*tch': 'bitch',
+                            'b*tches': 'bitches',
                             'b*tching': 'bitching',
-                        's*ck': 'suck',
-                        's*cking':'sucking',
-                        's*cked':'sucked',
-                        'f*cked': 'fucked',
-                        'f*cks': 'fucks',
-                        'sh*t': 'shit',
-                        'sh*ts':'shits',
-                        'sh*tty':'shitty',
-                        'd*ck': 'dick',
-                        'a**hole': 'asshole',
-                        'b*stard': 'bastard',
-                        'b*stards': 'bastards',
-                        'b*llock': 'bollock',
-                        'b*llocks': 'bollocks',
-                        'p*ssy': 'pussy',
-                        'p*ssies': 'pussies',
-                        'p*ssy\'s': 'pussy\'s',
-                        'c*nt': 'cunt',
-                        'c*nts': 'cunts',
-                        'c*nter': 'cunter',
-                        'c*nters': 'cunters',
-                        'c*nt\'s': 'cunt\'s',
+                            's*ck': 'suck',
+                            's*cks':'sucks',
+                            's*cking':'sucking',
+                            's*cked':'sucked',
+                            'sh*t': 'shit',
+                            'sh*ts':'shits',
+                            'sh*tty':'shitty',
+                            'd*ck': 'dick',
+                            'd*cks': 'dicks',
+                            'a**hole': 'asshole',
+                            'a**holes': 'assholes',
+                            'b*stard': 'bastard',
+                            'b*stards': 'bastards',
+                            'b*llock': 'bollock',
+                            'b*llocks': 'bollocks',
+                            'p*ssy': 'pussy',
+                            'p*ssies': 'pussies',
+                            'p*ssying': 'pussying',
+                            'p*ssed': 'pussied',
+                            'p*ss': 'piss',
+                            'p*sses': 'pisses',
+                            'p*ssing': 'pissing',
+                            'p*ssed': 'pissed',
+                            'c*nt': 'cunt',
+                            'c*nts': 'cunts',
+                            'c*nter': 'cunter',
+                            'c*nters': 'cunters',
 
 
                     };
@@ -445,6 +526,14 @@
                                 // Remove words from the original text (starting from the end to maintain indices)
                                 for (let i = positions.length - 1; i >= 0; i--) {
                                     const { start, length } = positions[i];
+                                    // Get the actual word being removed from the original text
+                                    const removedWord = processedText.substring(start, start + length);
+                                    // Add to removed words map or increment count if already there
+                                    if (removedWordsMap[removedWord]) {
+                                        removedWordsMap[removedWord]++;
+                                    } else {
+                                        removedWordsMap[removedWord] = 1;
+                                    }
                                     processedText = processedText.substring(0, start) + processedText.substring(start + length);
                                 }
                             } else {
@@ -461,6 +550,14 @@
                                 // Remove symbols from the original text (starting from the end to maintain indices)
                                 for (let i = positions.length - 1; i >= 0; i--) {
                                     const { start, length } = positions[i];
+                                    // Get the actual symbol being removed from the original text
+                                    const removedSymbol = processedText.substring(start, start + length);
+                                    // Add to symbols removed map or increment count if already there
+                                    if (symbolsRemovedMap[removedSymbol]) {
+                                        symbolsRemovedMap[removedSymbol]++;
+                                    } else {
+                                        symbolsRemovedMap[removedSymbol] = 1;
+                                    }
                                     processedText = processedText.substring(0, start) + processedText.substring(start + length);
                                     // Count each symbol removed
                                     symbolsRemoved++;
@@ -592,7 +689,61 @@
                 removedCount.textContent = removed;
                 asteriskCount.textContent = asterisk;
                 symbolsCount.textContent = symbols;
+                
+                // Reset tracking maps when stats are reset
+                removedWordsMap = {};
+                asteriskWordsMap = {};
+                symbolsRemovedMap = {};
             }
+            
+            // Modal functionality
+            const contentModal = document.getElementById('content-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            const closeModal = document.getElementById('close-modal');
+            
+            // Close modal when clicking the close button
+            closeModal.addEventListener('click', function() {
+                contentModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside the modal content
+            contentModal.addEventListener('click', function(event) {
+                if (event.target === contentModal) {
+                    contentModal.style.display = 'none';
+                }
+            });
+            
+            // Function to display items in the modal with their counts
+            function showItemsInModal(title, itemsMap) {
+                modalTitle.textContent = title;
+                
+                if (Object.keys(itemsMap).length === 0) {
+                    modalContent.innerHTML = '<p class="text-[var(--text-secondary)] italic">No items to display.</p>';
+                } else {
+                    let content = '<ul class="list-disc pl-5 space-y-1">';
+                    for (const [item, count] of Object.entries(itemsMap)) {
+                        content += `<li class="text-[var(--text-primary)]">${item} <span class="text-[var(--text-secondary)] font-medium">(${count})</span></li>`;
+                    }
+                    content += '</ul>';
+                    modalContent.innerHTML = content;
+                }
+                
+                contentModal.style.display = 'flex';
+            }
+            
+            // Add click event listeners to the statistic cards
+            document.getElementById('removed-words-card').addEventListener('click', function() {
+                showItemsInModal('Removed Words', removedWordsMap);
+            });
+            
+            document.getElementById('asterisk-words-card').addEventListener('click', function() {
+                showItemsInModal('Asterisk Words', asteriskWordsMap);
+            });
+            
+            document.getElementById('symbols-removed-card').addEventListener('click', function() {
+                showItemsInModal('Symbols Removed', symbolsRemovedMap);
+            });
         });
   </script>
 </body>
