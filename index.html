@@ -10,37 +10,39 @@
   <style>
     :root {
       --bg-gradient-from: #f5f7fa;
-      --bg-gradient-middle: #c8d6e5;
-      --bg-gradient-to: #92a8ca;
+      --bg-gradient-middle: #e4afaf;
+      --bg-gradient-middle-2: #d8a0d8;
+      --bg-gradient-to: #b96f6f;
       --text-primary: #1f2937;
       --text-secondary: #4b5563;
-      --card-bg: #ffffff;
+      --card-bg: #ffffff15;
       --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
       --input-border: #d1d5db;
-      --input-bg: #ffffff;
+      --input-bg: #ffffff69;
       --input-focus: #6366f1;
       --button-primary: #6366f1;
       --button-primary-hover: #4f46e5;
       --button-text: #ffffff;
-      --stats-bg-1: #eef2ff;
+      --stats-bg-1: #dfe7ff7e;
       --stats-text-1: #6366f1;
-      --stats-bg-2: #ecfdf5;
+      --stats-bg-2: #cbffe783;
       --stats-text-2: #10b981;
-      --stats-bg-3: #fef2f2;
+      --stats-bg-3: #ffd9d985;
       --stats-text-3: #ef4444;
-      --stats-bg-4: #f5f3ff;
+      --stats-bg-4: #d9d1ff8a;
       --stats-text-4: #8b5cf6;
-      --stats-bg-5: #fffbee;
+      --stats-bg-5: #fff4d18c;
       --stats-text-5: #664d03;
     }
 
     .dark {
-      --bg-gradient-from: #1f2937;
-      --bg-gradient-middle: #374151;
-      --bg-gradient-to: #111827;
+      --bg-gradient-from: #0f1318;
+      --bg-gradient-middle: #2b323f;
+      --bg-gradient-middle-2: #2d3748;
+      --bg-gradient-to: #000000;
       --text-primary: #f9fafb;
       --text-secondary: #d1d5db;
-      --card-bg: #374151;
+      --card-bg: #37415149;
       --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
       --input-border: #4b5563;
       --input-bg: #1f2937;
@@ -61,7 +63,7 @@
     }
 
     .gradient-bg {
-      background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-middle) 50%, var(--bg-gradient-to) 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-middle) 33%, var(--bg-gradient-middle-2) 66%, var(--bg-gradient-to) 100%);
     }
 
     .text-area {
@@ -353,6 +355,17 @@
                 const input = wordInput.value.trim();
                 if (!input) return;
                 
+                // Special case for comma as it's used as a separator
+                if (input === ',') {
+                    if (!wordsToRemove.includes(',')) {
+                        wordsToRemove.push(',');
+                        createWordBadge(',');
+                    }
+                    wordInput.value = '';
+                    wordInput.focus();
+                    return;
+                }
+                
                 // Split by commas and trim each word
                 const newWords = input.split(',').map(word => word.trim()).filter(word => word);
                 
@@ -538,7 +551,8 @@
                                 }
                             } else {
                                 // For symbols and special characters, don't use word boundaries
-                                const symbolRegex = new RegExp(normalizedWordToRemove.replace(/[\\^$.*+?()[{}|\\]/g, '\\$&'), 'gi');
+                                // Ensure proper escaping for special regex characters, especially commas
+                                const symbolRegex = new RegExp(normalizedWordToRemove.replace(/[\\^$.*+?()[{}|\\,]/g, '\\$&'), 'gi');
                                 
                                 // Find all occurrences in the normalized text
                                 let match;
