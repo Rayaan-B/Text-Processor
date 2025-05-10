@@ -8,37 +8,41 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    
     :root {
-      --bg-gradient-from: #f5f7fa;
-      --bg-gradient-middle: #e4afaf;
-      --bg-gradient-middle-2: #d8a0d8;
-      --bg-gradient-to: #b96f6f;
-      --text-primary: #1f2937;
-      --text-secondary: #4b5563;
-      --card-bg: #ffffff15;
+      --bg-gradient-from: #0077ff;
+      --bg-gradient-middle: #ae00ff;
+      --bg-gradient-middle-2: #4897ff;
+      --bg-gradient-to: #3300ff;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --card-bg: #ffffff40;
       --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --input-border: #d1d5db;
-      --input-bg: #ffffff69;
+      --input-border: #cbd5e1;
+      --input-bg: #ffffff49;
       --input-focus: #6366f1;
-      --button-primary: #6366f1;
+      --button-primary: #4649fc;
       --button-primary-hover: #4f46e5;
       --button-text: #ffffff;
-      --stats-bg-1: #dfe7ff7e;
-      --stats-text-1: #6366f1;
-      --stats-bg-2: #cbffe783;
-      --stats-text-2: #10b981;
-      --stats-bg-3: #ffd9d985;
-      --stats-text-3: #ef4444;
-      --stats-bg-4: #d9d1ff8a;
-      --stats-text-4: #8b5cf6;
-      --stats-bg-5: #fff4d18c;
-      --stats-text-5: #664d03;
+      --stats-bg-1: #e0e7ff;
+      --stats-text-1: #4f46e5;
+      --stats-bg-2: #d1fae5;
+      --stats-text-2: #059669;
+      --stats-bg-3: #fee2e2;
+      --stats-text-3: #dc2626;
+      --stats-bg-4: #ede9fe;
+      --stats-text-4: #7c3aed;
+      --stats-bg-5: #fef3c7;
+      --stats-text-5: #92400e;
     }
 
     .dark {
       --bg-gradient-from: #0f1318;
-      --bg-gradient-middle: #2b323f;
-      --bg-gradient-middle-2: #2d3748;
+      --bg-gradient-middle: #35435e;
+      --bg-gradient-middle-2: #7476fd;
       --bg-gradient-to: #000000;
       --text-primary: #f9fafb;
       --text-secondary: #d1d5db;
@@ -62,17 +66,26 @@
       --stats-text-5: #fff5d6;
     }
 
-    .gradient-bg {
+    /*.gradient-bg {
       background: linear-gradient(135deg, var(--bg-gradient-from) 0%, var(--bg-gradient-middle) 33%, var(--bg-gradient-middle-2) 66%, var(--bg-gradient-to) 100%);
+    }*/
+
+    .gradient-bg {
+      background:
+      radial-gradient(circle at 20% 20%, rgba(240, 208, 255, 0.9) 0%, rgba(240, 208, 255, 0.3) 50%),
+      radial-gradient(circle at 20% 80%, rgba(216, 200, 255, 0.9) 0%, rgba(216, 200, 255, 0.3) 50%), 
+      radial-gradient(circle at 25% 25%, rgba(196, 181, 253, 0.8) 0%, rgba(196, 181, 253, 0.3) 50%),
+      radial-gradient(circle at 66% 86%, rgba(224, 231, 255, 0.9) 0%, rgba(224, 231, 255, 0.3) 50%), 
+      radial-gradient(circle at 100% 10%, var(--bg-gradient-from) 0%, var(--bg-gradient-to) 100%);
     }
-    
+
     .dark .gradient-bg {
   background: 
     radial-gradient(circle at 20% 20%, rgba(63, 38, 151, 0.8) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(63, 38, 151, 0.8) 0%, transparent 50%),
     radial-gradient(circle at 50% 50%, var(--bg-gradient-from) 0%, var(--bg-gradient-to) 100%);
     }
-    
+
     .text-area {
       min-height: 200px;
       transition: all 0.3s ease;
@@ -130,7 +143,8 @@
       overflow-y: auto;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
-
+    
+    /* Add dark mode support for modal content */
     .dark .modal-content {
       background-color: #1f2937;
     }
@@ -196,21 +210,303 @@
     input:checked + .toggle-slider:before {
       transform: translateX(26px);
     }
+    
+    /* Hero section animations */
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .animate-fade-in-delay {
+      animation: fadeIn 0.8s ease-out 0.3s forwards;
+      opacity: 0;
+    }
+    
+    .animate-fade-in-delay-2 {
+      animation: fadeIn 0.8s ease-out 0.6s forwards;
+      opacity: 0;
+    }
+    
+    .animate-float {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    .animate-float-slow {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .animate-float-delay {
+      animation: float 5s ease-in-out 1s infinite;
+    }
+    
+    .animate-float-slow-delay {
+      animation: float 7s ease-in-out 2s infinite;
+    }
+    
+    .animate-pulse {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.2;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 0.2;
+      }
+    }
+    
+    @keyframes spin-slow {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    @keyframes bounce-subtle {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+    
+    @keyframes typing {
+      0% {
+        width: 0;
+      }
+      50% {
+        width: 75%;
+      }
+      100% {
+        width: 75%;
+      }
+    }
+    
+    @keyframes blink {
+      0%, 100% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+    
+    @keyframes pulse-slow {
+      0% {
+        opacity: 0.05;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.1;
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 0.05;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes pulse-slow-delay {
+      0% {
+        opacity: 0.05;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.1;
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 0.05;
+        transform: scale(1);
+      }
+    }
+    
+    .animate-spin-slow {
+      animation: spin-slow 15s linear infinite;
+    }
+    
+    .animate-bounce-subtle {
+      animation: bounce-subtle 3s ease-in-out infinite;
+    }
+    
+    .animate-typing {
+      animation: typing 3s steps(20, end) infinite;
+    }
+    
+    .animate-blink {
+      animation: blink 1s step-end infinite;
+    }
+    
+    .animate-pulse-slow {
+      animation: pulse-slow 6s ease-in-out infinite;
+    }
+    
+    .animate-pulse-slow-delay {
+      animation: pulse-slow-delay 7s ease-in-out 2s infinite;
+    }
+    
+    /* Scroll animation for hero section */
+    .hero-section {
+      transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    }
+    
+    .hero-section.scrolled {
+      transform: translateY(-20px);
+      opacity: 0.9;
+    }
+    
+    /* Responsive adjustments for particles */
+    @media (max-width: 768px) {
+      #particles-js {
+        opacity: 0.4;
+      }
+    }
   </style>
 </head>
 
 <body class="gradient-bg min-h-screen p-4 md:p-8 transition-colors duration-300">
-  <div class="max-w-4xl mx-auto">
-    <header class="text-center mb-10">
-      <h1 class="text-4xl font-bold text-[var(--text-primary)] mb-2">Text Processor</h1>
-      <p class="text-[var(--text-secondary)]">Clean and modify your text with ease</p>
-      <div class="flex items-center justify-center mt-4">
-        <span class="mr-2 text-[var(--text-secondary)]"><i class="fas fa-sun"></i></span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="dark-mode-toggle">
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="ml-2 text-[var(--text-secondary)]"><i class="fas fa-moon"></i></span>
+  <!-- Hero Section -->
+  <div class="hero-section relative overflow-hidden py-16 md:py-24 mb-12">
+    <!-- Animated particles background with improved visibility in light mode -->
+    <div id="particles-js" class="absolute inset-0 z-0 opacity-80 dark:opacity-70"></div>
+    
+    <!-- 3D rotating elements with improved visibility in light mode -->
+    <div class="absolute top-1/4 right-1/4 w-32 h-32 opacity-40 dark:opacity-20 z-0 animate-spin-slow hidden md:block">
+      <div class="absolute inset-0 border-4 border-[var(--button-primary)] rounded-lg transform rotate-45 shadow-md"></div>
+      <div class="absolute inset-0 border-4 border-[var(--bg-gradient-middle)] rounded-lg transform rotate-12 shadow-md"></div>
+    </div>
+    
+    <div class="max-w-5xl mx-auto px-4 relative z-10">
+      <!-- Animated badge -->
+      <div class="flex justify-center md:justify-start mb-4">
+        <div class="bg-[var(--card-bg)] backdrop-blur-sm px-4 py-1 rounded-full inline-flex items-center shadow-lg animate-bounce-subtle">
+          <span class="inline-block w-2 h-2 rounded-full bg-[var(--button-primary)] mr-2 animate-pulse"></span>
+          <span class="text-sm font-medium text-[var(--text-primary)]">✨ Next-Gen Text Processing</span>
+        </div>
+      </div>
+      
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
+          <h1 class="text-5xl md:text-6xl font-bold text-[var(--text-primary)] mb-4 tracking-tight animate-fade-in">
+            <span class="block">Transform Your</span>
+            <span class="relative block text-[var(--button-primary)] overflow-hidden">
+              <span class="relative z-10">Text Instantly</span>
+              <span class="absolute bottom-0 left-0 w-full h-3 bg-[var(--bg-gradient-middle-2)] opacity-30 transform -skew-x-12"></span>
+            </span>
+          </h1>
+          <p class="text-xl text-[var(--text-secondary)] mb-8 max-w-lg mx-auto md:mx-0 animate-fade-in-delay">
+            Clean, modify, and process your text with powerful tools designed for efficiency and ease of use.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-delay-2">
+            <a href="#text-processor" class="inline-block bg-[var(--button-primary)] hover:bg-[var(--button-primary-hover)] text-[var(--button-text)] px-8 py-4 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg w-full sm:w-auto text-center">
+              <i class="fas fa-magic mr-2"></i> Get Started
+            </a>
+            <a href="#" class="inline-block border-2 border-[var(--button-primary)] text-[var(--button-primary)] hover:bg-[var(--button-primary)] hover:text-white px-6 py-3.5 rounded-lg font-medium transition-all duration-300 w-full sm:w-auto text-center">
+              <i class="fas fa-play-circle mr-2"></i> Watch Demo
+            </a>
+          </div>
+        </div>
+        <div class="md:w-1/2 flex justify-center md:justify-end">
+          <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-[var(--button-primary)] to-[var(--bg-gradient-middle-2)] rounded-lg blur opacity-30 animate-pulse group-hover:opacity-50 transition-opacity"></div>
+            <div class="relative bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-md transform transition-transform group-hover:scale-105">
+              <div class="flex items-center mb-4">
+                <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <div class="ml-auto text-xs text-[var(--text-secondary)] opacity-70">text-processor.app</div>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <div class="w-5 h-5 rounded-full bg-[var(--button-primary)] opacity-80 flex items-center justify-center text-white text-xs mr-2">1</div>
+                  <div class="h-4 bg-[var(--input-border)] rounded-full w-3/4 opacity-50 animate-typing"></div>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-5 h-5 rounded-full bg-[var(--bg-gradient-middle)] opacity-80 flex items-center justify-center text-white text-xs mr-2">2</div>
+                  <div class="h-4 bg-[var(--input-border)] rounded-full opacity-50"></div>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-5 h-5 rounded-full bg-[var(--bg-gradient-middle-2)] opacity-80 flex items-center justify-center text-white text-xs mr-2">3</div>
+                  <div class="h-4 bg-[var(--input-border)] rounded-full w-5/6 opacity-50"></div>
+                </div>
+                <div class="h-4 bg-[var(--input-border)] rounded-full w-2/3 opacity-50"></div>
+                <div class="h-4 bg-[var(--input-border)] rounded-full opacity-50"></div>
+              </div>
+              <!-- Animated cursor effect -->
+              <div class="absolute bottom-6 right-6 h-4 w-2 bg-[var(--button-primary)] animate-blink"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Enhanced decorative elements -->
+    <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+      <!-- Decorative floating elements with improved visibility in light mode -->
+      <div class="absolute top-1/4 left-10 w-12 h-12 rounded-full bg-[var(--button-primary)] opacity-40 dark:opacity-20 animate-float-slow"></div>
+      <div class="absolute bottom-1/3 right-10 w-20 h-20 rounded-full bg-[var(--bg-gradient-middle)] opacity-40 dark:opacity-20 animate-float-delay"></div>
+      <div class="absolute top-2/3 left-1/4 w-16 h-16 rounded-full bg-[var(--bg-gradient-middle-2)] opacity-40 dark:opacity-20 animate-float-slow-delay"></div>
+      <!-- New decorative elements with improved visibility -->
+      <div class="absolute top-1/3 right-1/4 w-24 h-24 bg-[var(--button-primary)] opacity-30 dark:opacity-10 rounded-full blur-xl animate-pulse-slow"></div>
+      <div class="absolute bottom-1/4 left-1/3 w-32 h-32 bg-[var(--bg-gradient-middle)] opacity-30 dark:opacity-10 rounded-full blur-xl animate-pulse-slow-delay"></div>
+      <!-- Code snippets floating with improved visibility -->
+      <div class="absolute top-1/5 right-20 hidden lg:block">
+        <div class="bg-[var(--card-bg)] backdrop-blur-sm p-2 rounded shadow-lg transform rotate-3 animate-float-slow border border-gray-300 dark:border-transparent">
+          <code class="text-xs text-[var(--text-primary)] opacity-90 dark:opacity-70">text.replace(/[^\w\s]/g, '')</code>
+        </div>
+      </div>
+      <div class="absolute bottom-1/5 left-20 hidden lg:block">
+        <div class="bg-[var(--card-bg)] backdrop-blur-sm p-2 rounded shadow-lg transform -rotate-2 animate-float-delay border border-gray-300 dark:border-transparent">
+          <code class="text-xs text-[var(--text-primary)] opacity-90 dark:opacity-70">wordCount += text.split(/\s+/).length</code>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="text-processor" class="max-w-4xl mx-auto">
+    <header class="text-center mb-10 relative">
+      <div class="absolute inset-0 bg-gradient-to-r from-[var(--stats-bg-1)] via-transparent to-[var(--stats-bg-4)] opacity-10 rounded-lg -z-10"></div>
+      <div class="py-6 px-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-[var(--button-primary)] to-[var(--stats-text-4)]">Text Processor</span>
+        </h1>
+        <p class="text-lg text-[var(--text-secondary)] mb-4 max-w-md mx-auto">Clean and modify your text with ease</p>
+        <div class="inline-flex items-center justify-center bg-[var(--card-bg)] rounded-full px-4 py-2 shadow-sm">
+          <span class="mr-2 text-[var(--stats-text-1)]"><i class="fas fa-sun"></i></span>
+          <label class="toggle-switch mx-2">
+            <input type="checkbox" id="dark-mode-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="ml-2 text-[var(--stats-text-4)]"><i class="fas fa-moon"></i></span>
+        </div>
       </div>
     </header>
 
@@ -310,8 +606,131 @@
     </div>
   </div>
 
+  <!-- Particles.js for animated background -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Add scroll animation for hero section
+      const heroSection = document.querySelector('.hero-section');
+      window.addEventListener('scroll', function() {
+        const scrollPosition = window.scrollY;
+        if (scrollPosition > 50) {
+          heroSection.classList.add('scrolled');
+        } else {
+          heroSection.classList.remove('scrolled');
+        }
+      });
+      
+      // Initialize particles.js
+      if (typeof particlesJS !== 'undefined') {
+        particlesJS('particles-js', {
+          "particles": {
+            "number": {
+              "value": 80,
+              "density": {
+                "enable": true,
+                "value_area": 800
+              }
+            },
+            "color": {
+              "value": "#6366f1"
+            },
+            "shape": {
+              "type": "circle",
+              "stroke": {
+                "width": 0,
+                "color": "#000000"
+              },
+              "polygon": {
+                "nb_sides": 5
+              }
+            },
+            "opacity": {
+              "value": 0.3,
+              "random": true,
+              "anim": {
+                "enable": false,
+                "speed": 1,
+                "opacity_min": 0.1,
+                "sync": false
+              }
+            },
+            "size": {
+              "value": 3,
+              "random": true,
+              "anim": {
+                "enable": false,
+                "speed": 40,
+                "size_min": 0.1,
+                "sync": false
+              }
+            },
+            "line_linked": {
+              "enable": true,
+              "distance": 150,
+              "color": "#6366f1",
+              "opacity": 0.2,
+              "width": 1
+            },
+            "move": {
+              "enable": true,
+              "speed": 2,
+              "direction": "none",
+              "random": false,
+              "straight": false,
+              "out_mode": "out",
+              "bounce": false,
+              "attract": {
+                "enable": false,
+                "rotateX": 600,
+                "rotateY": 1200
+              }
+            }
+          },
+          "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+              "onhover": {
+                "enable": true,
+                "mode": "grab"
+              },
+              "onclick": {
+                "enable": true,
+                "mode": "push"
+              },
+              "resize": true
+            },
+            "modes": {
+              "grab": {
+                "distance": 140,
+                "line_linked": {
+                  "opacity": 0.5
+                }
+              },
+              "bubble": {
+                "distance": 400,
+                "size": 40,
+                "duration": 2,
+                "opacity": 8,
+                "speed": 3
+              },
+              "repulse": {
+                "distance": 200,
+                "duration": 0.4
+              },
+              "push": {
+                "particles_nb": 4
+              },
+              "remove": {
+                "particles_nb": 2
+              }
+            }
+          },
+          "retina_detect": true
+        });
+      }
+      
             // Dark mode toggle functionality
             const darkModeToggle = document.getElementById('dark-mode-toggle');
             const htmlElement = document.documentElement;
